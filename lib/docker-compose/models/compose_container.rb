@@ -81,7 +81,7 @@ class ComposeContainer
     port_bindings = prepare_port_bindings
     links = prepare_links
     volumes = prepare_volumes
-    volume_binds = @attributes[:volumes] && @attributes[:volumes].reject { |volume| volume.split(':').one? }
+    volume_binds = prepare_volume_binds
 
     # Exposed ports are port bindings with an empty hash as value
     exposed_ports = {}
@@ -161,6 +161,27 @@ class ComposeContainer
     end
 
     volumes
+  end
+
+  #
+  # Prepare Hostconfig Bind mounts by converting
+  # relative paths into absolute paths
+  #
+  def prepare_volume_binds
+    return if @attributes[:volumes].nil?
+
+    binds = @attributes[:volumes].reject { |volume| volume.split(':').one? }
+
+    # Convert relative paths to absolute paths
+    binds.map do |bind|
+      bind.split(':').map do |path|
+        unless path.start_with? '/'
+          File.expand_path(path)
+        else
+          path
+        end
+      end.join(':')
+    end
   end
 
   #

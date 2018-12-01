@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'pry'
 
 RSpec.shared_examples 'a docker config' do
   it 'should have the correct version info' do

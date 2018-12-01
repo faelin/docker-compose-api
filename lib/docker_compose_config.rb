@@ -18,11 +18,27 @@ class DockerComposeConfig
     end
 
     case (config['version'])
+    when /3\.\d*/
+      parse_version_3_x(config)
+    when '3', 3
+      parse_version_3(config)
     when 2,'2'
       parse_version_2(config)
     else
       parse_version_1(config)
     end
+  end
+
+  def parse_version_3_x(config)
+    parse_version_3(config)
+    @version = @version.to_f # convert strings into floats
+  end
+
+  def parse_version_3(config)
+    @version = config['version']
+    @services = config['services']
+    @volumes = config['volumes']
+    @networks = config['networks']
   end
 
   def parse_version_2(config)

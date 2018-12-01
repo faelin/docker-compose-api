@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'pry'
 
 RSpec.shared_examples 'a docker config' do
   it 'should have the correct version info' do
@@ -11,6 +12,26 @@ RSpec.shared_examples 'a docker config' do
 end
 
 describe DockerComposeConfig do
+    context 'Handles version 3.1 config' do
+    config_file = File.expand_path('spec/docker-compose/fixtures/compose_3_1.yaml')
+
+    it_behaves_like 'a docker config' do
+      let(:config_version) { 3.1 }
+      let(:num_services) { 2 }
+      let(:config) { DockerComposeConfig.new(config_file) }
+    end
+  end
+
+  context 'Handles version 3 config' do
+    config_file = File.expand_path('spec/docker-compose/fixtures/compose_3.yaml')
+
+    it_behaves_like 'a docker config' do
+      let(:config_version) { 3 }
+      let(:num_services) { 2 }
+      let(:config) { DockerComposeConfig.new(config_file) }
+    end
+  end
+
   context 'Handles version 2 config' do
     config_file = File.expand_path('spec/docker-compose/fixtures/compose_2.yaml')
 

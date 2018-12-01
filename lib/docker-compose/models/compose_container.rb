@@ -56,7 +56,20 @@ class ComposeContainer
       end
     elsif @attributes.key?(:build)
       @internal_image = SecureRandom.hex # Random name for image
-      Docker::Image.build_from_dir(@attributes[:build], {t: @internal_image})
+      opts = {t: @internal_image}
+
+      # docker-api can't figure out context directive
+      # We need to convert it to path instead
+      if @attributes[:build].is_a? Hash
+        dir = @attributes[:build]['context']
+
+        # Use all other opts as is but remove context
+        opts.merge!(@attributes[:build]).delete('context')
+      end
+
+      dir ||= @attributes[:build]
+
+      Docker::Image.build_from_dir(dir, opts)
     end
   end
 

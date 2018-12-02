@@ -162,7 +162,7 @@ class ComposeContainer
     # Convert relative paths to absolute paths
     binds.map do |bind|
       bind.split(':').map do |path|
-        unless path.start_with? '/'
+        if ! path.start_with? '/' and ! ['rw','ro'].include? path
           File.expand_path(path)
         else
           path

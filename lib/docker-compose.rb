@@ -72,7 +72,9 @@ module DockerCompose
       volumes: attributes[1]['volumes'],
       command: attributes[1]['command'],
       environment: attributes[1]['environment'],
-      labels: attributes[1]['labels']
+      labels: attributes[1]['labels'],
+      security_opt: attributes[1]['security_opt'],
+      cap_add: attributes[1]['cap_add'],
     })
   end
 
@@ -80,16 +82,18 @@ module DockerCompose
     info = container.json
 
     container_args = {
-      label:       info['Name'].split(/_/)[1] || '',
-      full_name:   info['Name'],
-      image:       info['Image'],
-      build:       nil,
-      links:       info['HostConfig']['Links'],
-      ports:       ComposeUtils.format_ports_from_running_container(info['NetworkSettings']['Ports']),
-      volumes:     info['Config']['Volumes'],
-      command:     info['Config']['Cmd'].join(' '),
-      environment: info['Config']['Env'],
-      labels:      info['Config']['Labels'],
+      label:        info['Name'].split(/_/)[1] || '',
+      full_name:    info['Name'],
+      image:        info['Image'],
+      build:        nil,
+      links:        info['HostConfig']['Links'],
+      cap_add:      info['HostConfig']['CapAdd'],
+      security_opt: info['HostConfig']['SecurityOpt'],
+      ports:        ComposeUtils.format_ports_from_running_container(info['NetworkSettings']['Ports']),
+      volumes:      info['Config']['Volumes'],
+      command:      info['Config']['Cmd'].join(' '),
+      environment:  info['Config']['Env'],
+      labels:       info['Config']['Labels'],
 
       loaded_from_environment: true
     }

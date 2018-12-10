@@ -16,6 +16,12 @@ services:
       default:
         aliases:
           - database
+  busybox:
+    image: busybox
+    cap_add:
+      - SYS_ADMIN
+    security_opt:
+      - apparmor:unconfined
 networks:
   default:
 

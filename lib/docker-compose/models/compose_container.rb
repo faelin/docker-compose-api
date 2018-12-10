@@ -18,7 +18,9 @@ class ComposeContainer
       volumes: hash_attributes[:volumes],
       command: ComposeUtils.format_command(hash_attributes[:command]),
       environment: prepare_environment(hash_attributes[:environment]),
-      labels: prepare_labels(hash_attributes[:labels])
+      labels: prepare_labels(hash_attributes[:labels]),
+      cap_add: hash_attributes[:cap_add],
+      security_opt: hash_attributes[:security_opt],
     }.reject { |key, value| value.nil? }
 
     prepare_compose_labels
@@ -97,7 +99,9 @@ class ComposeContainer
       HostConfig: {
         Binds: volume_binds,
         Links: links,
-        PortBindings: port_bindings
+        PortBindings: port_bindings,
+        CapAdd: @attributes[:cap_add],
+        SecurityOpt: @attributes[:security_opt],
       }
     }
 

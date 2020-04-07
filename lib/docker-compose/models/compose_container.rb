@@ -155,6 +155,8 @@ class ComposeContainer
     volumes = {}
 
     @attributes[:volumes].each do |volume|
+      # support relative paths
+      volume.sub!('./', Dir.pwd + '/')
       parts = volume.split(':')
 
       if parts.one?

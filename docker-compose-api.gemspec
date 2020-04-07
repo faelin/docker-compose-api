@@ -1,11 +1,14 @@
 # coding: utf-8
-lib = File.expand_path('../lib', __FILE__)
-$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'version'
+
+version = File.read(File.expand_path("COMPOSE_VERSION", __dir__)).strip
+# update version
+version_file = File.expand_path("./lib/version.rb", __dir__)
+new_content = File.read(version_file).gsub(/".+"/, "\"#{version}\"")
+File.open(version_file, "w") {|file| file.puts new_content }
 
 Gem::Specification.new do |spec|
   spec.name          = "docker-compose-api"
-  spec.version       = DockerCompose.version
+  spec.version       = version
   spec.authors       = ["Mauricio S. Klein"]
   spec.email         = ["mauricio.klein.msk@gmail.com"]
   spec.summary       = %q{A simple ruby client for docker-compose api}

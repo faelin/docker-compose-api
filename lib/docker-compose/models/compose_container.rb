@@ -16,6 +16,7 @@ class ComposeContainer
       links: ComposeUtils.format_links(hash_attributes[:links]),
       ports: prepare_ports(hash_attributes[:ports]),
       volumes: hash_attributes[:volumes],
+      shm_size: hash_attributes[:shm_size],
       command: ComposeUtils.format_command(hash_attributes[:command]),
       environment: prepare_environment(hash_attributes[:environment]),
       labels: prepare_labels(hash_attributes[:labels]),
@@ -102,6 +103,7 @@ class ComposeContainer
         PortBindings: port_bindings,
         CapAdd: @attributes[:cap_add],
         SecurityOpt: @attributes[:security_opt],
+        ShmSize: prepare_shm_size
       }
     }
 
@@ -128,6 +130,23 @@ class ComposeContainer
     end
 
     port_bindings
+  end
+
+  #
+  # Prepare shared memory size.
+  # Use specified or set default 64M
+  #
+  def prepare_shm_size
+    # set default 64M if nothing specified
+    return 67108864 unless @attributes[:shm_size]
+
+    value, units = @attributes[:shm_size].match(/(\d+)(\w+)?/)[1,2]
+    case units.to_s.downcase
+    when 'g', 'gb' then value.to_i * 1073741824
+    when 'm', 'mb' then value.to_i * 1048576
+    when 'k', 'kb' then value.to_i * 1024
+    else value.to_i
+    end
   end
 
   #

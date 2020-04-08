@@ -1,5 +1,5 @@
 module ComposeUtils
-  @dir_name = File.split(Dir.pwd).last.gsub(/[-_]/, '')
+  @dir_name = File.split(Dir.pwd).last.gsub(/[_]/, '')
   @current_container_id = nil
 
   #
@@ -112,6 +112,13 @@ module ComposeUtils
     end
 
     entries
+  end
+
+  #
+  # Safely parse cmd from running container
+  #
+  def self.format_command_from_running_container(cmd_entry)
+    cmd_entry ? cmd_entry.join(' ') : nil
   end
 
   #

@@ -83,7 +83,7 @@ module DockerCompose
     info = container.json
 
     container_args = {
-      label:        info['Name'].split(/_/)[1] || '',
+      label:        info['Name'].gsub('/', ''),
       full_name:    info['Name'],
       image:        info['Image'],
       build:        nil,
@@ -93,13 +93,12 @@ module DockerCompose
       shm_size:     info['HostConfig']['ShmSize'],
       ports:        ComposeUtils.format_ports_from_running_container(info['NetworkSettings']['Ports']),
       volumes:      info['Config']['Volumes'],
-      command:      info['Config']['Cmd'].join(' '),
+      command:      ComposeUtils.format_command_from_running_container(info['Config']['Cmd']),
       environment:  info['Config']['Env'],
       labels:       info['Config']['Labels'],
 
       loaded_from_environment: true
     }
-
     ComposeContainer.new(container_args, container)
   end
 

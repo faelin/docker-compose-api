@@ -73,6 +73,7 @@ module DockerCompose
       volumes: attributes[1]['volumes'],
       shm_size: attributes[1]['shm_size'],
       command: attributes[1]['command'],
+      entrypoint: attributes[1]['entrypoint'],
       environment: attributes[1]['environment'],
       labels: attributes[1]['labels'],
       security_opt: attributes[1]['security_opt'],

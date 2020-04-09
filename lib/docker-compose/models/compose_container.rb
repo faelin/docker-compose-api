@@ -18,6 +18,7 @@ class ComposeContainer
       ports: prepare_ports(hash_attributes[:ports]),
       volumes: hash_attributes[:volumes],
       shm_size: hash_attributes[:shm_size],
+      entrypoint: hash_attributes[:entrypoint],
       command: ComposeUtils.format_command(hash_attributes[:command]),
       environment: prepare_environment(hash_attributes[:environment]),
       labels: prepare_labels(hash_attributes[:labels]),

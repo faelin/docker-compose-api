@@ -15,10 +15,12 @@ class Compose
   # Add a new container to compose
   #
   def add_container(container)
+    # Commenting this due to not figured out cases where it might be useful.
+    # It messing with containers labels instead
     # Avoid duplicated labels on compose
-    while @containers.has_key?(container.attributes[:label]) do
-      container.attributes[:label].succ!
-    end
+    # while @containers.has_key?(container.attributes[:label]) do
+    #   container.attributes[:label].succ!
+    # end
 
     @containers[container.attributes[:label]] = container
     true
@@ -53,7 +55,7 @@ class Compose
       next if (container.loaded_from_environment? or links.nil?)
 
       links.each do |service, label|
-        dependency_container = @containers[service]
+        dependency_container = @containers.values.find { |c| c.attributes[:service] == service }
         container.add_dependency(dependency_container)
       end
     end

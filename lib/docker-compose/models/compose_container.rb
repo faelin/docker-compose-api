@@ -8,6 +8,7 @@ class ComposeContainer
 
   def initialize(hash_attributes, docker_container = nil)
     @attributes = {
+      service: hash_attributes[:service],
       label: hash_attributes[:label],
       loaded_from_environment: hash_attributes[:loaded_from_environment] || false,
       name: hash_attributes[:full_name] || ComposeUtils.generate_container_name(hash_attributes[:name], hash_attributes[:label]),
@@ -157,7 +158,7 @@ class ComposeContainer
     links = []
 
     @dependencies.each do |dependency|
-      link_name = @attributes[:links][dependency.attributes[:label]]
+      link_name = @attributes[:links][dependency.attributes[:service]]
       links << "#{dependency.stats['Id']}:#{link_name}"
     end
 
@@ -250,7 +251,7 @@ class ComposeContainer
     @attributes[:labels] = {} unless @attributes[:labels].is_a?(Hash)
 
     @attributes[:labels]['com.docker.compose.project'] = ComposeUtils.dir_name
-    @attributes[:labels]['com.docker.compose.service'] = @attributes[:label]
+    @attributes[:labels]['com.docker.compose.service'] = @attributes[:service]
     @attributes[:labels]['com.docker.compose.oneoff'] = 'False'
   end
 

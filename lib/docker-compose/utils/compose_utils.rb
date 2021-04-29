@@ -69,15 +69,15 @@ module ComposeUtils
     case port_parts.length
       # [container port]
       when 1
-        compose_port = ComposePort.new(port_parts[0])
+        compose_port = Port.new(port_parts[0])
 
       # [host port]:[container port]
       when 2
-        compose_port = ComposePort.new(port_parts[1], port_parts[0])
+        compose_port = Port.new(port_parts[1], port_parts[0])
 
       # [host ip]:[host port]:[container port]
       when 3
-        compose_port = ComposePort.new(port_parts[2], port_parts[1], port_parts[0])
+        compose_port = Port.new(port_parts[2], port_parts[1], port_parts[0])
     end
 
     compose_port

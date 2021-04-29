@@ -36,7 +36,7 @@ require 'docker-compose'
 # Docker client.
 #
 # Docker compose provides an easy way to access this client:
-DockerCompose.docker_client
+DockerCompose.connector
 
 # Gem version
 DockerCompose.version
@@ -51,8 +51,8 @@ compose = DockerCompose.load('[path to docker compose file]')
 compose = DockerCompose.load('[path to docker compose file]', true)
 
 # Accessing containers
-compose.containers                                   # access all containers
-compose.containers['container_label']                # access a container by its label (DEPRECATED)
+compose.containers # access all containers
+compose.containers['container_label'] # access a container by its label (DEPRECATED)
 compose.get_containers_by(label: 'foo', name: 'bar') # Returns an array of all containers with label = 'foo' and name = bar
 
 # Containers names are generated using the pattern below:
@@ -65,22 +65,22 @@ compose.get_containers_by(name: 'myawessomedir_foobar_1')
 compose.get_containers_by_given_name('foobar')
 
 # Starting containers (and their dependencies)
-compose.start                                    # start all containers
+compose.start # start all containers
 compose.start(['container1', 'container2', ...]) # start a list of specific containers
 
 # Stopping containers
 # (ps: container dependencies will keep running)
-compose.stop                                    # stop all containers
+compose.stop # stop all containers
 compose.stop(['container1', 'container2', ...]) # stop a list of specific containers
 
 # Killing containers
 # (ps: container dependencies will keep running)
-compose.kill                                    # kill all containers
+compose.kill # kill all containers
 compose.kill(['container1', 'container2', ...]) # kill a list of specific containers
 
 # Deleting containers
 # (ps: container dependencies will keep running)
-compose.delete                                    # delete all containers
+compose.delete # delete all containers
 compose.delete(['container1', 'container2', ...]) # delete a list of specific containers
 
 # Checking if a container is running or not

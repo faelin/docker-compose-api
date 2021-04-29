@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe ComposeContainer do
+describe Container do
   context 'Object creation' do
     before(:all) do
       @attributes = {
@@ -15,7 +15,7 @@ describe ComposeContainer do
         labels: { 'com.example.foo' => 'bar' }
       }
 
-      @entry = ComposeContainer.new(@attributes)
+      @entry = Container.new(@attributes)
     end
 
     it 'should prepare attributes correctly' do
@@ -69,8 +69,8 @@ describe ComposeContainer do
         environment: ['ENVIRONMENT']
       }
 
-      @entry = ComposeContainer.new(@attributes)
-      @entry_autogen_name = ComposeContainer.new(@attributes.reject{|key| key == :name})
+      @entry = Container.new(@attributes)
+      @entry_autogen_name = Container.new(@attributes.reject{|key| key == :name})
     end
 
     it 'should start/stop a container' do
@@ -130,7 +130,7 @@ describe ComposeContainer do
         volumes: ['/tmp']
       }
 
-      @entry = ComposeContainer.new(@attributes)
+      @entry = Container.new(@attributes)
     }
 
     after(:all) do
@@ -170,7 +170,7 @@ describe ComposeContainer do
         environment: ['ENVIRONMENT']
       }
 
-      @entry = ComposeContainer.new(attributes)
+      @entry = Container.new(attributes)
     end
 
     it 'should not start a container' do
@@ -190,7 +190,7 @@ describe ComposeContainer do
         environment: { ENVIRONMENT: 'VALUE' }
       }
 
-      @entry = ComposeContainer.new(@attributes)
+      @entry = Container.new(@attributes)
     end
 
     it 'should prepare environment attribute correctly' do
@@ -209,21 +209,21 @@ describe ComposeContainer do
 
     it 'correctly parses container-only volumes' do
       attributes[:volumes] = ['/tmp']
-      entry = ComposeContainer.new(attributes)
+      entry = Container.new(attributes)
       volumes = entry.send(:prepare_volumes)
       expect(volumes).to eq({ '/tmp' => {} })
     end
 
     it 'correctly parses host-container mapped volumes' do
       attributes[:volumes] = ['./tmp:/tmp']
-      entry = ComposeContainer.new(attributes)
+      entry = Container.new(attributes)
       volumes = entry.send(:prepare_volumes)
       expect(volumes).to eq({ '/tmp' => { './tmp' => 'rw' } })
     end
 
     it 'correctly parses host-container mapped volumes with access rights' do
       attributes[:volumes] = ['./tmp:/tmp:ro']
-      entry = ComposeContainer.new(attributes)
+      entry = Container.new(attributes)
       volumes = entry.send(:prepare_volumes)
       expect(volumes).to eq({ '/tmp' => { './tmp' => 'ro' } })
     end

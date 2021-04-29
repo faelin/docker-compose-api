@@ -15,7 +15,7 @@ describe DockerCompose do
     end
 
     it 'should be able to access Docker client' do
-      expect(DockerCompose.docker_client).to_not be_nil
+      expect(DockerCompose.connector).to_not be_nil
     end
 
     it 'should read 3 containers' do

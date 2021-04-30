@@ -10,13 +10,12 @@ require 'docker'
 
 module Docker
   class DockerError < StandardError
-    class DockerComposeError < DockerError
-      class DuplicateContainerError < DockerComposeError; end
-      class ParseError < IOError; end
-    end
+    class DockerComposeError < DockerError; end
   end
 
   class Compose
+    class DuplicateContainerError < DockerComposeError; end
+    class ParseError < DockerComposeError; end
 
     class << self
       # @attr containers [Hash]
@@ -131,6 +130,18 @@ module Docker
       def self.load_running_container(container)
         info = container.json
 
+        port_entries = info['NetworkSettings']['Ports'].map do |key, val|
+          container_port = key.gsub(/\D/).to_i
+
+          # Ports that are EXPOSEd but not published won't have a Host IP/Port, only a Container Port.
+          host_port = val.dig(0,'HostPort')
+          host_ip = val.dig(0,'HostIp')
+
+          raise Docker::Compose::ParseError, "cannot specify a host IP address without a post port" if host_port.blank? and host_ip.present?
+
+          [ container_port, host_ip, host_port ].join(':')
+        end
+
         container_args = {
           label:        info['Name'].gsub('/', ''),
           full_name:    info['Name'],
@@ -140,9 +151,9 @@ module Docker
           cap_add:      info['HostConfig']['CapAdd'],
           security_opt: info['HostConfig']['SecurityOpt'],
           shm_size:     info['HostConfig']['ShmSize'],
-          ports:        ComposeUtils.format_ports_from_running_container(info['NetworkSettings']['Ports']),
+          ports:        port_entries,
           volumes:      info['Config']['Volumes'],
-          command:      ComposeUtils.format_command_from_running_container(info['Config']['Cmd']),
+          command:      info['Config']['Cmd']&.join(' '),
           environment:  info['Config']['Env'],
           labels:       info['Config']['Labels'],
 

@@ -5,34 +5,62 @@ require_relative '../utils/compose_utils'
 
 module Docker
   module Compose
+    # @attr composed_attributes [Hash]
+    # @attr internal_image [Docker::Image]
+    # @attr docker_container [Docker::Container]
+    # @attr dependencies [Docker::Container]
     class Container
-      attr_accessor :attributes, :internal_image, :container, :dependencies
+      attr_accessor :attributes, :internal_image, :docker_container, :dependencies
 
       def initialize(attributes, docker_container = nil)
-        @attributes = {
-          service: attributes[:service],
-          label: attributes[:label],
-          loaded_from_environment: attributes[:loaded_from_environment] || false,
-          name: attributes[:full_name] || ComposeUtils.generate_container_name(attributes[:name], attributes[:label]),
-          image: ComposeUtils.format_image(attributes[:image]),
-          build: attributes[:build],
-          links: ComposeUtils.format_links(attributes[:links]),
-          ports: prepare_ports(attributes[:ports]),
-          volumes: attributes[:volumes],
-          shm_size: attributes[:shm_size],
-          entrypoint: attributes[:entrypoint],
-          command: ComposeUtils.format_command(attributes[:command]),
-          environment: prepare_environment(attributes[:environment]),
-          labels: prepare_labels(attributes[:labels]),
-          cap_add: attributes[:cap_add],
-          security_opt: attributes[:security_opt],
-        }.reject { |key, value| value.nil? }
+        container_name = attributes[:full_name]
+        container_name ||=
+          [
+            Docker::Compose::Utils.dir_name,
+            attributes[:name] || attributes[:label],
+            Docker::Compose::Utils.next_available_id,
+          ].join('_')
+        # gives: "[compose_directory]_[container name]_[id]"
 
-        prepare_compose_labels
+        image_name = attributes[:image]&.include?(':') ? attributes[:image] : "#{attributes[:image]}:latest"
+          # expects: "[image]:[tag]" | "[image]"
+        service_links = attributes[:links]&.map {|x| (service,label) = x.split(':'); [service, (label || service)] }.to_h
+          # expects: "[service]:[label]" | "[service]"
+        ports = attributes[:ports].map { |port_string| Port.new(port_entry.to_s.split(':').reverse) }
+          # expects: "[host ip]:[host port]:[container port]" | "[host port]:[container port]" | "[container port]"
+
+        @attributes =
+          {
+            service: attributes[:service],
+            label: attributes[:label],
+            loaded_from_environment: attributes[:loaded_from_environment],
+            name:  container_name,
+            image: image_name,
+            build: attributes[:build],
+            links: service_links,
+            ports: ports,
+            volumes: attributes[:volumes],
+            shm_size: attributes[:shm_size],
+            entrypoint: attributes[:entrypoint],
+            command: attributes[:command]&.split(' '),
+            environment: prepare_environment(attributes[:environment]),
+            labels: prepare_labels(attributes[:labels]),
+            cap_add: attributes[:cap_add],
+            security_opt: attributes[:security_opt],
+          }.compact
+
+        @attributes[:labels] = {} unless @attributes[:labels].is_a?(Hash)
+        @attributes[:labels].merge!(
+          {
+            'com.docker.compose.project' => ComposeUtils.dir_name,
+            'com.docker.compose.service' => @attributes[:service],
+            'com.docker.compose.oneoff' => 'False',
+          }
+        )
 
         # Docker client variables
         @internal_image = nil
-        @container = docker_container
+        @docker_container = docker_container
         @dependencies = []
       end
 
@@ -114,7 +142,7 @@ module Docker
         query_params = { 'name' => @attributes[:name] }
 
         params = container_config.merge(query_params)
-        @container = Docker::Container.create(params)
+        @docker_container = Docker::Container.create(params)
       end
 
       #
@@ -144,7 +172,7 @@ module Docker
         # set default 64M if nothing specified
         return 67108864 unless @attributes[:shm_size]
 
-        value, units = @attributes[:shm_size].match(/(\d+)(\w+)?/)[1,2]
+        value, units = @attributes[:shm_size].match(/(\d+)(\w+)?/)[1, 2]
         case units.to_s.downcase
         when 'g', 'gb' then value.to_i * 1073741824
         when 'm', 'mb' then value.to_i * 1048576
@@ -214,24 +242,6 @@ module Docker
       end
 
       #
-      # Process each port entry in docker compose file and
-      # create structure recognized by docker client
-      #
-      def prepare_ports(port_entries)
-        ports = []
-
-        if port_entries.nil?
-          return nil
-        end
-
-        port_entries.each do |port_entry|
-          ports.push(ComposeUtils.format_port(port_entry))
-        end
-
-        ports
-      end
-
-      #
       # Forces the environment structure to use the array format.
       #
       def prepare_environment(env_entries)
@@ -245,17 +255,6 @@ module Docker
       def prepare_labels(labels)
         return labels unless labels.is_a?(Array)
         Hash[labels.map { |label| label.split('=') }]
-      end
-
-      #
-      # Adds internal docker-compose labels
-      #
-      def prepare_compose_labels
-        @attributes[:labels] = {} unless @attributes[:labels].is_a?(Hash)
-
-        @attributes[:labels]['com.docker.compose.project'] = ComposeUtils.dir_name
-        @attributes[:labels]['com.docker.compose.service'] = @attributes[:service]
-        @attributes[:labels]['com.docker.compose.oneoff'] = 'False'
       end
 
       #
@@ -277,34 +276,34 @@ module Docker
         end
 
         # Create a container object
-        if @container.nil?
+        if @docker_container.nil?
           prepare_image
           prepare_container
         end
 
-        @container.start unless @container.nil?
+        @docker_container.start unless @docker_container.nil?
       end
 
       #
       # Stop the container
       #
       def stop
-        @container.stop unless @container.nil?
+        @docker_container.stop unless @docker_container.nil?
       end
 
       #
       # Kill the container
       #
       def kill
-        @container.kill unless @container.nil?
+        @docker_container.kill unless @docker_container.nil?
       end
 
       #
       # Delete the container
       #
       def delete
-        @container.delete(:force => true) unless @container.nil?
-        @container = nil
+        @docker_container.delete(:force => true) unless @docker_container.nil?
+        @docker_container = nil
       end
 
       #
@@ -319,21 +318,21 @@ module Docker
       # Return container statistics
       #
       def stats
-        @container.json
+        @docker_container.json
       end
 
       #
       # Check if a container is already running or not
       #
       def running?
-        @container.nil? ? false : self.stats['State']['Running']
+        @docker_container.nil? ? false : self.stats['State']['Running']
       end
 
       #
       # Check if the container exists or not
       #
       def exist?
-        !@container.nil?
+        !@docker_container.nil?
       end
     end
   end

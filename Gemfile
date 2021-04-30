@@ -5,3 +5,4 @@ gemspec
 
 # Code climate coverage support
 gem 'codeclimate-test-reporter', group: :test, require: nil
+gem 'rubocop'

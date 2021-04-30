@@ -3,7 +3,6 @@
 require 'docker'
 require 'securerandom'
 require_relative 'port'
-require_relative '../utils/compose_utils'
 
 module Docker
   module Compose

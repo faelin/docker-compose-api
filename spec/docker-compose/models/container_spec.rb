@@ -136,7 +136,7 @@ describe Container do
     }
 
     after(:all) do
-      Docker::Image.get(@entry.internal_image).remove(force: true)
+      Docker::Image.get(@entry.image_name).remove(force: true)
       @entry.delete
     end
 

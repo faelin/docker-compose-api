@@ -1,0 +1,66 @@
+AllCops:
+  NewCops: enable
+
+Layout:
+  Severity: convention
+Layout/AccessModifierIndentation:
+  EnforcedStyle: outdent
+Layout/CommentIndentation:
+  Enabled: false
+Layout/EmptyLines:
+  Enabled: false
+Layout/EmptyLinesAroundBlockBody:
+  Enabled: false
+Layout/EmptyLineBetweenDefs:
+  Enabled: false
+Layout/ExtraSpacing:
+  Enabled: false
+Layout/FirstArgumentIndentation:
+  Enabled: false
+Layout/FirstArrayElementIndentation:
+  Enabled: false
+Layout/FirstHashElementIndentation:
+  Enabled: false
+Layout/LeadingCommentSpace:
+  Enabled: false
+Layout/LineLength:
+  Enabled: false
+Layout/SpaceAfterComma:
+  Enabled: false
+Layout/SpaceInsideArrayPercentLiteral:
+  Enabled: false
+Layout/SpaceInsideParens:
+  Enabled: false
+Layout/SpaceInsidePercentLiteralDelimiters:
+  Enabled: false
+#Layout/TrailingWhitespace:
+  #Enabled: false
+
+Metrics:
+  Severity: info
+Metrics/AbcSize:
+  Enabled: false
+
+Style:
+  Severity: warning
+Style/AndOr:
+  Enabled: false
+Style/AsciiComments:
+  Enabled: false
+Style/EmptyMethod:
+  Enabled: false
+Style/RedundantReturn:
+  Enabled: false
+Style/RedundantSelf:
+  Enabled: false
+Style/TrailingCommaInArguments:
+  # Enabled: false
+  EnforcedStyleForMultiline: consistent_comma
+Style/TrailingCommaInArrayLiteral:
+  # Enabled: false
+  EnforcedStyleForMultiline: consistent_comma
+Style/TrailingCommaInBlockArgs:
+  Enabled: false
+Style/TrailingCommaInHashLiteral:
+  # Enabled: false
+  EnforcedStyleForMultiline: consistent_comma

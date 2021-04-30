@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'docker'
 require 'securerandom'
 require_relative 'port'

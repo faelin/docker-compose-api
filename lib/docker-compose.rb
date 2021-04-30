@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'docker-compose/models/base'
 require_relative 'docker-compose/models/container'
 require_relative 'version'
@@ -137,7 +139,7 @@ module Docker
           host_port = val.dig(0,'HostPort')
           host_ip = val.dig(0,'HostIp')
 
-          raise Docker::Compose::ParseError, "cannot specify a host IP address without a post port" if host_port.blank? and host_ip.present?
+          raise Docker::Compose::ParseError, 'cannot specify a host IP address without a post port' if host_port.blank? and host_ip.present?
 
           [ container_port, host_ip, host_port ].join(':')
         end
